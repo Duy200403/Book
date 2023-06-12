@@ -1,25 +1,25 @@
-import data.BookData;
-import data.FactoryBookData;
-import data.TypeBookData;
-import model.Book;
+import data.BookStoreData;
+import data.FactoryBookStoreData;
+import data.TypeBookStoreData;
+import model.BookStore;
 
 import java.util.*;
 
 public class Application {
     private static void menu() {
         System.out.println("--- BOOK MANAGER ---");
-        System.out.println("1. Danh sach cac cuon sach");
-        System.out.println("2. Tim kiem sach theo tac gia, ISBN hoac tieu de");
-        System.out.println("3. Sap xep theo diem rating tang dan");
-        System.out.println("4. Lay ra 10 cuon sach co rating cao nhat");
-        System.out.println("0. Thoat");
-        System.out.println("nhap lua chon cua ban");
+        System.out.println("1. List all books");
+        System.out.println("2. Search books by author, ISBN, or title");
+        System.out.println("3. Sort books by increasing rating");
+        System.out.println("4. Get top 10 books with highest rating");
+        System.out.println("0. Exit");
+        System.out.println("Choose an option: ");
     }
 
     public static void main(String[] args) {
-        BookData bookData = FactoryBookData.getBookData(TypeBookData.CSV);
+        BookStoreData bookStoreData = FactoryBookStoreData.getBookData(TypeBookStoreData.CSV);
         // Lay danh sach sach
-        List<Book> books = bookData.getAllBook();
+        List<BookStore> books = bookStoreData.getAllBook();
         Scanner in = new Scanner(System.in);
         int choice = -1;
         do {
@@ -27,26 +27,26 @@ public class Application {
             try {
                 choice = Integer.parseInt(in.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Vui long nhap mot lua chon hop le.");
+                System.out.println("Please enter a valid choice.");
                 continue;
             }
 
             switch (choice) {
                 case 1:
-                    System.out.println("Danh sach cac cuon sach:");
+                    System.out.println("List of all books:");
                     for (int i = 0; i < books.size(); i++) {
                         System.out.printf("[STT = %d, ISBN = %s, TITLE = %s]%n", i + 1, books.get(i).getIsbn(), books.get(i).getTitle());
                     }
                     break;
 
                 case 2:
-                    System.out.println("Nhap tac gia, ISBN hoac tieu de sach:");
+                    System.out.println("Enter author, ISBN, or title of the book:");
                     String keyword = in.nextLine();
-                    List<Book> searchResults = searchBooks(books, keyword);
+                    List<BookStore> searchResults = searchBooks(books, keyword);
                     if (searchResults.isEmpty()) {
-                        System.out.println("Khong tim thay cuon sach nao phu hop.");
+                        System.out.println("No matching books found.");
                     } else {
-                        System.out.println("Ket qua tim kiem:");
+                        System.out.println("Search results:");
                         for (int i = 0; i < searchResults.size(); i++) {
                             System.out.printf("[STT = %d, ISBN = %s, TITLE = %s]%n", i + 1, searchResults.get(i).getIsbn(), searchResults.get(i).getTitle());
                         }
@@ -55,34 +55,34 @@ public class Application {
 
                 case 3:
                     sortBooksByRating(books);
-                    System.out.println("Danh sach cac cuon sach da duoc sap xep theo diem rating tang dan:");
+                    System.out.println("List of books sorted by increasing rating:");
                     for (int i = 0; i < books.size(); i++) {
                         System.out.printf("[STT = %d, ISBN = %s, TITLE = %s, RATING = %.2f]%n", i + 1, books.get(i).getIsbn(), books.get(i).getTitle(), books.get(i).getAverageRating());
                     }
                     break;
 
                 case 4:
-                    List<Book> topRatedBooks = getTopRatedBooks(books, 10);
-                    System.out.println("Danh sach 10 cuon sach co rating cao nhat:");
+                    List<BookStore> topRatedBooks = getTopRatedBooks(books, 10);
+                    System.out.println("Top 10 books with highest rating:");
                     for (int i = 0; i < topRatedBooks.size(); i++) {
                         System.out.printf("[STT = %d, ISBN = %s, TITLE = %s, RATING = %.2f]%n", i + 1, topRatedBooks.get(i).getIsbn(), topRatedBooks.get(i).getTitle(), topRatedBooks.get(i).getAverageRating());
                     }
                     break;
 
                 case 0:
-                    System.out.println("Thoat chuong trinh.");
+                    System.out.println("Exiting the program.");
                     break;
 
                 default:
-                    System.out.println("Lua chon khong hop le.");
+                    System.out.println("Invalid choice.");
                     break;
             }
         } while (choice != 0);
     }
 
-    private static List<Book> searchBooks(List<Book> books, String keyword) {
-        List<Book> searchResults = new ArrayList<>();
-        for (Book book : books) {
+    static List<BookStore> searchBooks(List<BookStore> books, String keyword) {
+        List<BookStore> searchResults = new ArrayList<>();
+        for (BookStore book : books) {
             if (book.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
                     book.getAuthors().toLowerCase().contains(keyword.toLowerCase()) ||
                     book.getIsbn().toLowerCase().contains(keyword.toLowerCase())) {
@@ -92,13 +92,13 @@ public class Application {
         return searchResults;
     }
 
-    private static void sortBooksByRating(List<Book> books) {
-        Collections.sort(books, Comparator.comparingDouble(Book::getAverageRating));
+    static void sortBooksByRating(List<BookStore> books) {
+        Collections.sort(books, Comparator.comparingDouble(BookStore::getAverageRating));
     }
 
-    private static List<Book> getTopRatedBooks(List<Book> books, int count) {
-        List<Book> topRatedBooks = new ArrayList<>(books);
-        topRatedBooks.sort(Comparator.comparingDouble(Book::getAverageRating).reversed());
+    static List<BookStore> getTopRatedBooks(List<BookStore> books, int count) {
+        List<BookStore> topRatedBooks = new ArrayList<>(books);
+        topRatedBooks.sort(Comparator.comparingDouble(BookStore::getAverageRating).reversed());
         return topRatedBooks.subList(0, Math.min(count, topRatedBooks.size()));
     }
 }
